@@ -84,10 +84,64 @@ select { width: 120px; }
 .dot.today-empty { background: transparent; border: 1.5px solid #ccc; }
 .del-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 15px; padding: 4px 6px; border-radius: 6px; align-self: flex-start; flex-shrink: 0; }
 .del-btn:hover { color: #c0392b; background: #fdecea; }
+.goal-card {
+  background: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);
+  border-radius: 14px; padding: 18px 20px; margin-bottom: 1.5rem; color: #fff;
+  position: relative;
+}
+.goal-card.empty { background: #fff; border: 2px dashed #ccc; cursor: pointer; text-align: center; padding: 22px; }
+.goal-card.empty .goal-empty-txt { color: #aaa; font-size: 14px; }
+.goal-card.empty .goal-empty-icon { font-size: 24px; margin-bottom: 6px; }
+.goal-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.goal-label { font-size: 11px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.goal-name { font-size: 18px; font-weight: 600; }
+.goal-edit-btn { background: rgba(255,255,255,0.2); border: none; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: inherit; }
+.goal-edit-btn:hover { background: rgba(255,255,255,0.3); }
+.goal-progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.goal-pct { font-size: 28px; font-weight: 700; }
+.goal-pct-label { font-size: 12px; opacity: 0.75; }
+.goal-bar-outer { flex: 1; height: 8px; background: rgba(255,255,255,0.25); border-radius: 99px; overflow: hidden; }
+.goal-bar-inner { height: 100%; border-radius: 99px; background: #fff; transition: width 0.4s; }
+.goal-manual-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.goal-manual-label { font-size: 12px; opacity: 0.8; }
+.goal-manual-inp { width: 80px; padding: 5px 8px; border-radius: 6px; border: none; font-size: 13px; font-family: inherit; outline: none; background: rgba(255,255,255,0.9); color: #111; }
+.goal-manual-of { font-size: 12px; opacity: 0.8; }
+.goal-manual-target { width: 80px; padding: 5px 8px; border-radius: 6px; border: none; font-size: 13px; font-family: inherit; outline: none; background: rgba(255,255,255,0.9); color: #111; }
+.goal-manual-unit { width: 70px; padding: 5px 8px; border-radius: 6px; border: none; font-size: 13px; font-family: inherit; outline: none; background: rgba(255,255,255,0.9); color: #111; }
+.goal-deadline { font-size: 12px; opacity: 0.75; margin-top: 8px; }
+.goal-form { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 16px; margin-bottom: 1.5rem; }
+.goal-form-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #111; }
+.goal-form-fields { display: flex; flex-direction: column; gap: 10px; }
+.goal-form-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.goal-form-btn { padding: 9px 20px; border: none; border-radius: 8px; background: #1D9E75; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; }
+.goal-form-btn:hover { background: #178a65; }
+.goal-cancel-btn { padding: 9px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #666; cursor: pointer; font-size: 14px; font-family: inherit; }
+.section-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
 .install-banner { display:none; background:#1D9E75; color:#fff; font-size:13px; padding:10px 16px; text-align:center; position:sticky; top:0; z-index:10; }
 .install-banner span { opacity:0.85; }
 .install-banner b { font-weight:600; }
 .install-close { float:right; background:none; border:none; color:#fff; font-size:16px; cursor:pointer; line-height:1; padding:0 0 0 10px; }
+.ai-section { background:#fff; border:1px solid #e8e8e8; border-radius:12px; padding:16px; margin-bottom:1.5rem; }
+.ai-section-title { font-size:13px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px; }
+.ai-key-row { display:flex; gap:8px; align-items:flex-end; margin-bottom:10px; }
+.ai-key-inp { flex:1; font-family:monospace; font-size:12px; }
+.ai-key-save { padding:9px 14px; border:none; border-radius:8px; background:#1D9E75; color:#fff; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; }
+.ai-key-save:hover { background:#178a65; }
+.ai-key-set { font-size:12px; color:#1D9E75; font-weight:600; margin-bottom:10px; }
+.ai-btn-row { display:flex; gap:8px; flex-wrap:wrap; }
+.ai-btn { flex:1; min-width:120px; padding:10px 14px; border:1px solid #1D9E75; border-radius:8px; background:#fff; color:#1D9E75; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; }
+.ai-btn:hover { background:#f0fbf7; }
+.ai-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.ai-result { margin-top:14px; background:#f5f5f3; border-radius:8px; padding:12px 14px; font-size:14px; line-height:1.7; color:#333; display:none; }
+.ai-result.visible { display:block; }
+.ai-result-label { font-size:11px; font-weight:600; color:#1D9E75; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.ai-loading { color:#aaa; font-style:italic; font-size:13px; }
+.ai-suggest-list { list-style:none; padding:0; margin:6px 0 0; display:flex; flex-direction:column; gap:8px; }
+.ai-suggest-item { display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e8e8e8; border-radius:8px; padding:10px 12px; gap:8px; }
+.ai-suggest-name { font-size:14px; font-weight:500; flex:1; }
+.ai-suggest-add { padding:4px 12px; border:none; border-radius:6px; background:#1D9E75; color:#fff; cursor:pointer; font-size:12px; font-weight:600; font-family:inherit; white-space:nowrap; }
+.ai-suggest-add:hover { background:#178a65; }
+.ai-suggest-add:disabled { background:#ccc; cursor:not-allowed; }
 </style>
 </head>
 <body>
@@ -117,6 +171,41 @@ select { width: 120px; }
     </div>
   </div>
 
+  <div id="goal-section"></div>
+  <div id="goal-form-section" style="display:none;">
+    <div class="goal-form">
+      <div class="goal-form-title" id="goal-form-title">Set your goal</div>
+      <div class="goal-form-fields">
+        <div class="field-group">
+          <span class="field-hint">What is your goal?</span>
+          <input type="text" id="goal-name-inp" placeholder="e.g. Lose 10kg, Run a 5K" maxlength="60" style="width:100%;" />
+        </div>
+        <div class="goal-form-row">
+          <div class="field-group">
+            <span class="field-hint">Current value</span>
+            <input type="number" id="goal-current-inp" placeholder="e.g. 80" min="0" />
+          </div>
+          <div class="field-group">
+            <span class="field-hint">Target value</span>
+            <input type="number" id="goal-target-inp" placeholder="e.g. 70" min="0" />
+          </div>
+          <div class="field-group">
+            <span class="field-hint">Unit</span>
+            <input type="text" id="goal-unit-inp" placeholder="kg, km, mins" maxlength="10" style="width:80px;" />
+          </div>
+          <div class="field-group">
+            <span class="field-hint">Deadline</span>
+            <input type="date" id="goal-deadline-inp" style="width:140px;" />
+          </div>
+        </div>
+        <div class="goal-form-row">
+          <button class="goal-form-btn" id="goal-save-btn">Save goal</button>
+          <button class="goal-cancel-btn" id="goal-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title" id="habits-section-title" style="display:none;">Habits towards this goal</div>
   <div class="add-section">
     <div class="add-fields">
       <div class="field-group" style="flex:1;min-width:150px;">
@@ -142,6 +231,28 @@ select { width: 120px; }
   </div>
 
   <div class="habits-list" id="habits-list"></div>
+
+  <div class="ai-section" style="margin-top:1.5rem;">
+    <div class="ai-section-title">✨ AI Assistant</div>
+    <div id="ai-key-area">
+      <div class="ai-key-row">
+        <input class="ai-key-inp" type="password" id="ai-key-inp" placeholder="Paste your Groq API key (gsk_...)" />
+        <button class="ai-key-save" id="ai-key-save-btn">Save</button>
+      </div>
+      <div style="font-size:11px;color:#aaa;">Get your free key at <a href="https://console.groq.com/keys" target="_blank" style="color:#1D9E75;">console.groq.com/keys</a> — no card needed!</div>
+    </div>
+    <div id="ai-key-set-area" style="display:none;">
+      <div class="ai-key-set">✓ API key saved &nbsp;<button id="ai-key-change-btn" style="background:none;border:none;color:#aaa;font-size:11px;cursor:pointer;font-family:inherit;">change</button></div>
+      <div class="ai-btn-row">
+        <button class="ai-btn" id="ai-suggest-btn">🎯 Suggest habits</button>
+        <button class="ai-btn" id="ai-motivate-btn">💪 Motivate me</button>
+      </div>
+    </div>
+    <div class="ai-result" id="ai-result">
+      <div class="ai-result-label" id="ai-result-label"></div>
+      <div id="ai-result-body"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -157,6 +268,19 @@ select { width: 120px; }
   };
 
   var STORAGE_KEY = 'habitbuilder_habits';
+  var GOAL_KEY = 'habitbuilder_goal';
+  var goal = null;
+
+  function saveGoal() {
+    try { localStorage.setItem(GOAL_KEY, JSON.stringify(goal)); } catch(e) {}
+  }
+
+  function loadGoal() {
+    try {
+      var raw = localStorage.getItem(GOAL_KEY);
+      if (raw) goal = JSON.parse(raw);
+    } catch(e) { goal = null; }
+  }
 
   function saveHabits() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(habits)); } catch(e) {}
@@ -256,6 +380,90 @@ select { width: 120px; }
     return streak;
   }
 
+  function daysLeft(deadline) {
+    if (!deadline) return null;
+    var diff = Math.ceil((new Date(deadline) - new Date()) / 86400000);
+    return diff;
+  }
+
+  function renderGoal() {
+    var sec = document.getElementById('goal-section');
+    var habitsTitle = document.getElementById('habits-section-title');
+    habitsTitle.style.display = habits.length || goal ? 'block' : 'none';
+    if (!goal) {
+      sec.innerHTML = '<div class="goal-card empty" id="goal-empty-btn"><div class="goal-empty-icon">🎯</div><div class="goal-empty-txt">Tap to set your goal</div></div>';
+      document.getElementById('goal-empty-btn').addEventListener('click', showGoalForm);
+      return;
+    }
+    var today = todayStr();
+    var total = habits.length;
+    var done = habits.filter(function(h) { return getCount(h, today) >= h.goal; }).length;
+    var habitPct = total > 0 ? Math.round(done / total * 100) : 0;
+    var manualPct = 0;
+    if (goal.target && goal.current !== undefined && goal.target !== goal.startVal) {
+      var range = Math.abs(goal.target - goal.startVal);
+      var progress = Math.abs(goal.current - goal.startVal);
+      manualPct = Math.min(100, Math.round(progress / range * 100));
+    }
+    var combinedPct = total > 0 ? Math.round((habitPct + manualPct) / 2) : manualPct;
+    var dl = daysLeft(goal.deadline);
+    var deadlineTxt = dl !== null ? (dl > 0 ? '📅 ' + dl + ' days left' : dl === 0 ? '📅 Due today!' : '📅 Deadline passed') : '';
+    sec.innerHTML = '<div class="goal-card">'
+      + '<div class="goal-top"><div><div class="goal-label">My Goal</div><div class="goal-name">' + escHtml(goal.name) + '</div></div>'
+      + '<button class="goal-edit-btn" id="goal-edit-btn">Edit</button></div>'
+      + '<div class="goal-progress-row"><div><div class="goal-pct">' + combinedPct + '%</div><div class="goal-pct-label">overall progress</div></div>'
+      + '<div class="goal-bar-outer"><div class="goal-bar-inner" style="width:' + combinedPct + '%"></div></div></div>'
+      + (goal.target ? '<div class="goal-manual-row"><span class="goal-manual-label">Current:</span>'
+        + '<input class="goal-manual-inp" type="number" id="goal-current-live" value="' + (goal.current || 0) + '" />'
+        + '<span class="goal-manual-of">/ ' + goal.target + ' ' + escHtml(goal.unit || '') + '</span></div>' : '')
+      + (deadlineTxt ? '<div class="goal-deadline">' + deadlineTxt + '</div>' : '')
+      + '</div>';
+    document.getElementById('goal-edit-btn').addEventListener('click', showGoalForm);
+    var liveInp = document.getElementById('goal-current-live');
+    if (liveInp) {
+      liveInp.addEventListener('change', function() {
+        goal.current = parseFloat(this.value) || 0;
+        saveGoal();
+        renderGoal();
+      });
+    }
+  }
+
+  function showGoalForm() {
+    document.getElementById('goal-form-section').style.display = 'block';
+    document.getElementById('goal-section').style.display = 'none';
+    if (goal) {
+      document.getElementById('goal-form-title').textContent = 'Edit your goal';
+      document.getElementById('goal-name-inp').value = goal.name || '';
+      document.getElementById('goal-current-inp').value = goal.startVal || '';
+      document.getElementById('goal-target-inp').value = goal.target || '';
+      document.getElementById('goal-unit-inp').value = goal.unit || '';
+      document.getElementById('goal-deadline-inp').value = goal.deadline || '';
+    } else {
+      document.getElementById('goal-form-title').textContent = 'Set your goal';
+    }
+  }
+
+  function hideGoalForm() {
+    document.getElementById('goal-form-section').style.display = 'none';
+    document.getElementById('goal-section').style.display = 'block';
+  }
+
+  document.getElementById('goal-save-btn').addEventListener('click', function() {
+    var name = document.getElementById('goal-name-inp').value.trim();
+    if (!name) { document.getElementById('goal-name-inp').style.borderColor = '#e74c3c'; return; }
+    var startVal = parseFloat(document.getElementById('goal-current-inp').value) || 0;
+    var target = parseFloat(document.getElementById('goal-target-inp').value) || 0;
+    var unit = document.getElementById('goal-unit-inp').value.trim();
+    var deadline = document.getElementById('goal-deadline-inp').value;
+    goal = { name: name, startVal: startVal, current: goal ? goal.current : startVal, target: target, unit: unit, deadline: deadline };
+    saveGoal();
+    hideGoalForm();
+    renderGoal();
+  });
+
+  document.getElementById('goal-cancel-btn').addEventListener('click', hideGoalForm);
+
   function addHabit() {
     var input = document.getElementById('habit-input');
     var name = input.value.trim();
@@ -266,12 +474,19 @@ select { width: 120px; }
       return;
     }
     var cat = document.getElementById('cat-select').value;
-    var goal = parseInt(document.getElementById('goal-input').value, 10);
-    if (isNaN(goal) || goal < 1) goal = 1;
+    var habitGoal = parseInt(document.getElementById('goal-input').value, 10);
+    if (isNaN(habitGoal) || habitGoal < 1) habitGoal = 1;
     var isSteps = isStepsHabit(name);
-    if (isSteps && goal === 1) goal = 10000;
-    var step = isSteps ? 1000 : 1;
-    habits.push({ id: Date.now(), name: name, cat: cat, goal: goal, step: step, counts: {} });
+    var isProtein = isProteinHabit(name);
+    var isSleep = isSleepHabit(name);
+    var isWork = isWorkHabit(name);
+    if (isSteps && habitGoal === 1) habitGoal = 10000;
+    if (isProtein && habitGoal === 1) habitGoal = 50;
+    if (isSleep && habitGoal === 1) habitGoal = 8;
+    if (isWork && habitGoal === 1) habitGoal = 2;
+    var step = isSteps ? 1000 : (isProtein ? 10 : 1);
+    var unit = getHabitUnit(name);
+    habits.push({ id: Date.now(), name: name, cat: cat, goal: habitGoal, step: step, unit: unit, counts: {} });
     saveHabits();
     input.value = '';
     document.getElementById('goal-input').value = 1;
@@ -315,6 +530,24 @@ select { width: 120px; }
     return /step|steps|walk|walking|stride|strides/i.test(name);
   }
 
+  function isProteinHabit(name) {
+    return /protein|proteins|whey|shake|meat|chicken|egg|eggs/i.test(name);
+  }
+
+  function isSleepHabit(name) {
+    return /sleep|sleeping|rest|nap/i.test(name);
+  }
+
+  function isWorkHabit(name) {
+    return /work|study|read|reading|meditat|exercise|workout|gym|yoga|coding|code/i.test(name);
+  }
+
+  function getHabitUnit(name) {
+    if (isStepsHabit(name)) return 'steps';
+    if (isProteinHabit(name)) return 'g';
+    return 'hrs';
+  }
+
   function escHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
@@ -329,6 +562,7 @@ select { width: 120px; }
     document.getElementById('prog-bar').style.width = total ? Math.round(done / total * 100) + '%' : '0%';
     document.getElementById('stat-total').textContent = total;
     document.getElementById('stat-streak').textContent = bestStreak;
+    renderGoal();
 
     var list = document.getElementById('habits-list');
     if (!total) {
@@ -356,11 +590,14 @@ select { width: 120px; }
       }
 
       var stepSize = h.step || 1;
+      var unit = h.unit || 'times';
       var countLabel;
       if (isDone) {
         countLabel = '&#10003;';
       } else if (stepSize >= 1000) {
         countLabel = '+' + (stepSize / 1000) + 'k';
+      } else if (unit === 'g') {
+        countLabel = '+' + stepSize + 'g';
       } else if (stepSize > 1) {
         countLabel = '+' + stepSize;
       } else {
@@ -371,8 +608,8 @@ select { width: 120px; }
         if (n >= 1000) return (n / 1000 % 1 === 0 ? n / 1000 : (n / 1000).toFixed(1)) + 'k';
         return n;
       }
-      var countDisplay = fmt(count);
-      var goalDisplay = fmt(h.goal);
+      var countDisplay = unit === 'g' ? count + 'g' : fmt(count);
+      var goalDisplay = unit === 'g' ? h.goal + 'g' : (unit === 'steps' ? fmt(h.goal) : h.goal + ' ' + unit);
 
       html += '<div class="habit-card' + (isDone ? ' done' : '') + '" data-id="' + h.id + '">';
       html += '<div class="count-ctrl">';
@@ -391,7 +628,9 @@ select { width: 120px; }
       html += '<div class="habit-meta">';
       html += '<span class="habit-cat" style="background:' + c.bg + ';color:' + c.color + '">' + h.cat + '</span>';
       if (h.goal > 1 || h.step > 1) {
-        html += '<span class="habit-count-lbl">' + countDisplay + ' of ' + goalDisplay + ' today</span>';
+        html += '<span class="habit-count-lbl">' + countDisplay + ' / ' + goalDisplay + '</span>';
+      } else {
+        html += '<span class="habit-count-lbl">' + (isDone ? 'done' : '0 / 1 hr') + '</span>';
       }
       html += '<span class="week-dots">' + dotsHtml + '</span>';
       if (streak > 0) {
@@ -448,7 +687,150 @@ select { width: 120px; }
     try { localStorage.setItem('hb_banner_dismissed', '1'); } catch(e) {}
   });
 
+  var AI_KEY_STORAGE = 'hb_ai_key';
+  var aiKey = '';
+
+  function loadAiKey() {
+    try { aiKey = localStorage.getItem(AI_KEY_STORAGE) || ''; } catch(e) {}
+    updateAiKeyUI();
+  }
+
+  function updateAiKeyUI() {
+    if (aiKey) {
+      document.getElementById('ai-key-area').style.display = 'none';
+      document.getElementById('ai-key-set-area').style.display = 'block';
+    } else {
+      document.getElementById('ai-key-area').style.display = 'block';
+      document.getElementById('ai-key-set-area').style.display = 'none';
+    }
+  }
+
+  document.getElementById('ai-key-save-btn').addEventListener('click', function() {
+    var val = document.getElementById('ai-key-inp').value.trim();
+    if (!val) return;
+    aiKey = val;
+    try { localStorage.setItem(AI_KEY_STORAGE, aiKey); } catch(e) {}
+    document.getElementById('ai-key-inp').value = '';
+    updateAiKeyUI();
+  });
+
+  document.getElementById('ai-key-change-btn').addEventListener('click', function() {
+    aiKey = '';
+    try { localStorage.removeItem(AI_KEY_STORAGE); } catch(e) {}
+    document.getElementById('ai-result').classList.remove('visible');
+    updateAiKeyUI();
+  });
+
+  function getHabitSummary() {
+    var today = todayStr();
+    return habits.map(function(h) {
+      return h.name + ' (' + getCount(h, today) + '/' + h.goal + ' ' + (h.unit || 'times') + ')';
+    }).join(', ');
+  }
+
+  function setAiLoading(label) {
+    var res = document.getElementById('ai-result');
+    res.classList.add('visible');
+    document.getElementById('ai-result-label').textContent = label;
+    document.getElementById('ai-result-body').innerHTML = '<span class="ai-loading">Thinking...</span>';
+    document.getElementById('ai-suggest-btn').disabled = true;
+    document.getElementById('ai-motivate-btn').disabled = true;
+  }
+
+  function setAiDone() {
+    document.getElementById('ai-suggest-btn').disabled = false;
+    document.getElementById('ai-motivate-btn').disabled = false;
+  }
+
+  async function callGemini(prompt) {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + aiKey.trim()
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1000,
+        temperature: 0.7
+      })
+    });
+    if (!res.ok) { var err = await res.json(); throw new Error(err.error ? err.error.message : 'API error ' + res.status); }
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.choices[0].message.content;
+  }
+
+  document.getElementById('ai-suggest-btn').addEventListener('click', async function() {
+    if (!goal) { alert('Please set your goal first!'); return; }
+    setAiLoading('Suggested habits');
+    try {
+      var existing = habits.map(function(h) { return h.name; }).join(', ') || 'none yet';
+      var prompt = 'I want to achieve this goal: "' + goal.name + '".'
+        + (goal.target ? ' Target: ' + goal.target + ' ' + (goal.unit || '') + ', currently at ' + (goal.current || goal.startVal) + '.' : '')
+        + ' I already have these habits: ' + existing + '.'
+        + ' Suggest 4 specific daily habits that will help me reach this goal. I have not added yet.'
+        + ' Reply ONLY as a JSON array of objects with keys "name" and "category" (health/mind/work/social/other). No explanation, no markdown, just the JSON array.';
+      var text = await callGemini(prompt);
+      var clean = text.replace(/```json|```/g, '').trim();
+      var suggestions = JSON.parse(clean);
+      var html = '<ul class="ai-suggest-list">';
+      suggestions.forEach(function(s, idx) {
+        html += '<li class="ai-suggest-item">'
+          + '<span class="ai-suggest-name">' + escHtml(s.name) + '</span>'
+          + '<button class="ai-suggest-add" data-name="' + escHtml(s.name) + '" data-cat="' + escHtml(s.category || 'other') + '">+ Add</button>'
+          + '</li>';
+      });
+      html += '</ul>';
+      document.getElementById('ai-result-body').innerHTML = html;
+      document.getElementById('ai-result').querySelectorAll('.ai-suggest-add').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var name = this.getAttribute('data-name');
+          var cat = this.getAttribute('data-cat');
+          var isSteps = isStepsHabit(name);
+          var isProtein = isProteinHabit(name);
+          var isSleep = isSleepHabit(name);
+          var isWork = isWorkHabit(name);
+          var hGoal = isSteps ? 10000 : isProtein ? 50 : isSleep ? 8 : isWork ? 2 : 1;
+          var step = isSteps ? 1000 : isProtein ? 10 : 1;
+          var unit = getHabitUnit(name);
+          habits.push({ id: Date.now(), name: name, cat: cat, goal: hGoal, step: step, unit: unit, counts: {} });
+          saveHabits();
+          this.textContent = '✓ Added';
+          this.disabled = true;
+          render();
+        });
+      });
+    } catch(e) {
+      document.getElementById('ai-result-body').innerHTML = '<span style="color:#c0392b;font-size:13px;">❌ ' + escHtml(e.message) + '</span>';
+    }
+    setAiDone();
+  });
+
+  document.getElementById('ai-motivate-btn').addEventListener('click', async function() {
+    setAiLoading('Motivation');
+    try {
+      var today = todayStr();
+      var total = habits.length;
+      var done = habits.filter(function(h) { return getCount(h, today) >= h.goal; }).length;
+      var pct = total ? Math.round(done / total * 100) : 0;
+      var prompt = 'I am working towards this goal: "' + (goal ? goal.name : 'building better habits') + '".'
+        + ' Today I completed ' + done + ' out of ' + total + ' habits (' + pct + '%).'
+        + ' My current streak is ' + bestStreak + ' days.'
+        + ' Give me a short, personal, energetic motivational message (2-3 sentences max). Be specific to my goal and progress. No generic advice.';
+      var text = await callGemini(prompt);
+      document.getElementById('ai-result-body').innerHTML = '<p>' + escHtml(text) + '</p>';
+    } catch(e) {
+      document.getElementById('ai-result-body').innerHTML = '<span style="color:#c0392b;font-size:13px;">❌ ' + escHtml(e.message) + '</span>';
+    }
+    setAiDone();
+  });
+
+  loadAiKey();
+
   loadHabits();
+  loadGoal();
   loadBestStreak();
   scheduleMidnightCheck();
   render();
