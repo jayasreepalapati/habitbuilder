@@ -223,6 +223,15 @@ select { width: 120px; }
         </select>
       </div>
       <div class="field-group">
+        <span class="field-hint">Type</span>
+        <select id="type-select">
+          <option value="yesno">Yes / No</option>
+          <option value="count">Count</option>
+          <option value="duration">Duration (hrs)</option>
+          <option value="mins">Duration (mins)</option>
+        </select>
+      </div>
+      <div class="field-group" id="goal-field">
         <span class="field-hint">Daily goal</span>
         <input type="number" id="goal-input" min="1" max="999999" value="1" />
       </div>
@@ -459,10 +468,22 @@ select { width: 120px; }
     goal = { name: name, startVal: startVal, current: goal ? goal.current : startVal, target: target, unit: unit, deadline: deadline };
     saveGoal();
     hideGoalForm();
-    renderGoal();
+    render();
   });
 
-  document.getElementById('goal-cancel-btn').addEventListener('click', hideGoalForm);
+  function autoDetectType(name) {
+    if (isStepsHabit(name)) return 'count';
+    if (isProteinHabit(name)) return 'count';
+    if (isSleepHabit(name)) return 'duration';
+    if (isWorkHabit(name)) return 'duration';
+    if (isReadingHabit(name)) return 'mins';
+    if (/vitamin|pill|medicine|medication|supplement|shower|floss|journal|pray|gratitude|cold/i.test(name)) return 'yesno';
+    return 'yesno';
+  }
+
+  function isReadingHabit(name) {
+    return /read|reading|book|books/i.test(name);
+  }
 
   function addHabit() {
     var input = document.getElementById('habit-input');
@@ -474,19 +495,30 @@ select { width: 120px; }
       return;
     }
     var cat = document.getElementById('cat-select').value;
-    var habitGoal = parseInt(document.getElementById('goal-input').value, 10);
-    if (isNaN(habitGoal) || habitGoal < 1) habitGoal = 1;
-    var isSteps = isStepsHabit(name);
-    var isProtein = isProteinHabit(name);
-    var isSleep = isSleepHabit(name);
-    var isWork = isWorkHabit(name);
-    if (isSteps && habitGoal === 1) habitGoal = 10000;
-    if (isProtein && habitGoal === 1) habitGoal = 50;
-    if (isSleep && habitGoal === 1) habitGoal = 8;
-    if (isWork && habitGoal === 1) habitGoal = 2;
-    var step = isSteps ? 1000 : (isProtein ? 10 : 1);
-    var unit = getHabitUnit(name);
-    habits.push({ id: Date.now(), name: name, cat: cat, goal: habitGoal, step: step, unit: unit, counts: {} });
+    var type = document.getElementById('type-select').value;
+    var habitGoal, step, unit;
+
+    if (type === 'yesno') {
+      habitGoal = 1; step = 1; unit = 'yesno';
+    } else if (type === 'duration') {
+      habitGoal = parseInt(document.getElementById('goal-input').value, 10) || 1;
+      if (isSleepHabit(name) && habitGoal === 1) habitGoal = 8;
+      if (isWorkHabit(name) && habitGoal === 1) habitGoal = 2;
+      step = 0.5; unit = 'hrs';
+    } else if (type === 'mins') {
+      habitGoal = parseInt(document.getElementById('goal-input').value, 10) || 15;
+      if (isReadingHabit(name) && habitGoal === 1) habitGoal = 15;
+      step = 5; unit = 'mins';
+    } else {
+      habitGoal = parseInt(document.getElementById('goal-input').value, 10) || 1;
+      var isSt = isStepsHabit(name), isPr = isProteinHabit(name);
+      if (isSt && habitGoal === 1) habitGoal = 10000;
+      if (isPr && habitGoal === 1) habitGoal = 50;
+      step = isSt ? 1000 : isPr ? 10 : 1;
+      unit = isSt ? 'steps' : isPr ? 'g' : 'count';
+    }
+
+    habits.push({ id: Date.now(), name: name, cat: cat, type: type, goal: habitGoal, step: step, unit: unit, counts: {} });
     saveHabits();
     input.value = '';
     document.getElementById('goal-input').value = 1;
@@ -498,7 +530,15 @@ select { width: 120px; }
     var today = todayStr();
     for (var i = 0; i < habits.length; i++) {
       if (habits[i].id === id) {
-        habits[i].counts[today] = (habits[i].counts[today] || 0) + (habits[i].step || 1);
+        if (habits[i].type === 'yesno') {
+          habits[i].counts[today] = habits[i].counts[today] ? 0 : 1;
+        } else {
+          var s = habits[i].step || 1;
+          var cur = habits[i].counts[today] || 0;
+          var next = Math.round((cur + s) * 10) / 10;
+          if (habits[i].type === 'duration' || habits[i].type === 'mins') next = Math.min(next, habits[i].goal);
+          habits[i].counts[today] = next;
+        }
         break;
       }
     }
@@ -512,7 +552,9 @@ select { width: 120px; }
     var today = todayStr();
     for (var i = 0; i < habits.length; i++) {
       if (habits[i].id === id) {
-        habits[i].counts[today] = Math.max(0, (habits[i].counts[today] || 0) - (habits[i].step || 1));
+        var s = habits[i].step || 1;
+        var cur = habits[i].counts[today] || 0;
+        habits[i].counts[today] = Math.max(0, Math.round((cur - s) * 10) / 10);
         break;
       }
     }
@@ -571,6 +613,11 @@ select { width: 120px; }
     }
 
     var html = '';
+    function fmt(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000 % 1 === 0 ? n / 1000 : (n / 1000).toFixed(1)) + 'k';
+      return n;
+    }
     for (var i = 0; i < habits.length; i++) {
       var h = habits[i];
       var count = getCount(h, today);
@@ -590,54 +637,62 @@ select { width: 120px; }
       }
 
       var stepSize = h.step || 1;
-      var unit = h.unit || 'times';
-      var countLabel;
-      if (isDone) {
-        countLabel = '&#10003;';
-      } else if (stepSize >= 1000) {
-        countLabel = '+' + (stepSize / 1000) + 'k';
+      var unit = h.unit || 'hrs';
+      var htype = h.type || (unit === 'yesno' ? 'yesno' : 'duration');
+      var countLabel, countDisplay, goalDisplay;
+
+      if (htype === 'yesno') {
+        countLabel = isDone ? '&#10003;' : '✕';
+        countDisplay = isDone ? 'Done ✓' : 'Not done';
+        goalDisplay = '';
+      } else if (unit === 'steps') {
+        countLabel = isDone ? '&#10003;' : '+' + (stepSize / 1000) + 'k';
+        countDisplay = fmt(count) + ' steps';
+        goalDisplay = fmt(h.goal) + ' steps';
       } else if (unit === 'g') {
-        countLabel = '+' + stepSize + 'g';
-      } else if (stepSize > 1) {
-        countLabel = '+' + stepSize;
+        countLabel = isDone ? '&#10003;' : '+' + stepSize + 'g';
+        countDisplay = count + 'g';
+        goalDisplay = h.goal + 'g';
+      } else if (unit === 'hrs') {
+        countLabel = isDone ? '&#10003;' : '+' + stepSize + 'h';
+        countDisplay = count + ' hrs';
+        goalDisplay = h.goal + ' hrs';
+      } else if (unit === 'mins') {
+        countLabel = isDone ? '&#10003;' : '+' + stepSize + 'm';
+        countDisplay = count + ' mins';
+        goalDisplay = h.goal + ' mins';
       } else {
-        countLabel = '+';
+        countLabel = isDone ? '&#10003;' : '+' + (stepSize > 1 ? stepSize : '');
+        countDisplay = count + '';
+        goalDisplay = h.goal + '';
       }
-      function fmt(n) {
-        if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-        if (n >= 1000) return (n / 1000 % 1 === 0 ? n / 1000 : (n / 1000).toFixed(1)) + 'k';
-        return n;
-      }
-      var countDisplay = unit === 'g' ? count + 'g' : fmt(count);
-      var goalDisplay = unit === 'g' ? h.goal + 'g' : (unit === 'steps' ? fmt(h.goal) : h.goal + ' ' + unit);
 
       html += '<div class="habit-card' + (isDone ? ' done' : '') + '" data-id="' + h.id + '">';
       html += '<div class="count-ctrl">';
       html += '<div class="count-circle" data-action="inc" data-id="' + h.id + '">' + countLabel + '</div>';
-      if (count > 0) {
+      if (count > 0 && htype !== 'yesno') {
         html += '<button class="undo-btn" data-action="dec" data-id="' + h.id + '">undo</button>';
-      } else {
+      } else if (htype !== 'yesno') {
         html += '<span class="spacer"></span>';
       }
       html += '</div>';
       html += '<div class="habit-info">';
       html += '<div class="habit-name">' + escHtml(h.name) + '</div>';
-      if (h.goal > 1 || h.step > 1) {
+      if (htype !== 'yesno') {
         html += '<div class="goal-bar-wrap"><div class="goal-bar" style="width:' + pct + '%"></div></div>';
       }
       html += '<div class="habit-meta">';
       html += '<span class="habit-cat" style="background:' + c.bg + ';color:' + c.color + '">' + h.cat + '</span>';
-      if (h.goal > 1 || h.step > 1) {
-        html += '<span class="habit-count-lbl">' + countDisplay + ' / ' + goalDisplay + '</span>';
+      if (htype === 'yesno') {
+        html += '<span class="habit-count-lbl" style="color:' + (isDone ? '#1D9E75' : '#aaa') + '">' + countDisplay + '</span>';
       } else {
-        html += '<span class="habit-count-lbl">' + (isDone ? 'done' : '0 / 1 hr') + '</span>';
+        html += '<span class="habit-count-lbl">' + countDisplay + ' / ' + goalDisplay + '</span>';
       }
       html += '<span class="week-dots">' + dotsHtml + '</span>';
       if (streak > 0) {
         html += '<span class="habit-streak">&#128293; ' + streak + 'd</span>';
       }
-      html += '</div>';
-      html += '</div>';
+      html += '</div></div>';
       html += '<button class="del-btn" data-action="del" data-id="' + h.id + '">&#x2715;</button>';
       html += '</div>';
     }
@@ -658,6 +713,19 @@ select { width: 120px; }
 
   document.getElementById('habit-input').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') addHabit();
+  });
+
+  document.getElementById('habit-input').addEventListener('input', function() {
+    var name = this.value.trim();
+    var type = autoDetectType(name);
+    document.getElementById('type-select').value = type;
+    document.getElementById('goal-field').style.display = type === 'yesno' ? 'none' : 'flex';
+    if (type === 'mins') document.getElementById('goal-input').value = 15;
+    else if (type === 'duration') document.getElementById('goal-input').value = isSleepHabit(name) ? 8 : isWorkHabit(name) ? 2 : 1;
+  });
+
+  document.getElementById('type-select').addEventListener('change', function() {
+    document.getElementById('goal-field').style.display = this.value === 'yesno' ? 'none' : 'flex';
   });
 
   function scheduleMidnightCheck() {
