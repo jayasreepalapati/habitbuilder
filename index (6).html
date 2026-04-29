@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HabitBuilder</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="HabitBuilder" />
+<meta name="theme-color" content="#1D9E75" />
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22HabitBuilder%22%2C%22short_name%22%3A%22Habits%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231D9E75%22%2C%22theme_color%22%3A%22%231D9E75%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%2527http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%3D%25270%25200%2520512%2520512%2527%253E%253Crect%2520width%3D%2527512%2527%2520height%3D%2527512%2527%2520rx%3D%2527100%2527%2520fill%3D%2527%25231D9E75%2527%2F%253E%253Ctext%2520x%3D%2527256%2527%2520y%3D%2527330%2527%2520font-size%3D%2527280%2527%2520text-anchor%3D%2527middle%2527%2520fill%3D%2527white%2527%253E%25E2%259C%2593%253C%2F%2520text%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%231D9E75'/><text x='256' y='340' font-size='300' text-anchor='middle' fill='white'>✓</text></svg>" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%231D9E75'/><text x='256' y='340' font-size='300' text-anchor='middle' fill='white'>✓</text></svg>" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; color: #111; min-height: 100vh; }
+.container { max-width: 680px; margin: 0 auto; padding: 2rem 1.25rem; }
+.hb-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.hb-title { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+.hb-date { font-size: 13px; color: #888; }
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat-card { background: #fff; border-radius: 10px; border: 1px solid #e8e8e8; padding: 12px 14px; }
+.stat-label { font-size: 12px; color: #999; margin-bottom: 4px; }
+.stat-val { font-size: 22px; font-weight: 600; }
+.progress-bar-wrap { width: 100%; height: 5px; background: #eee; border-radius: 99px; margin-top: 6px; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 99px; background: #1D9E75; transition: width 0.3s; }
+.add-section { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 16px; margin-bottom: 1.5rem; }
+.add-fields { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.field-group { display: flex; flex-direction: column; gap: 4px; }
+.field-hint { font-size: 11px; color: #999; }
+input[type=text], input[type=number], select {
+  padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px;
+  font-size: 14px; font-family: inherit; outline: none; background: #fff; color: #111;
+}
+input[type=text]:focus, input[type=number]:focus, select:focus { border-color: #1D9E75; box-shadow: 0 0 0 3px rgba(29,158,117,0.12); }
+input[type=number] { width: 90px; }
+select { width: 120px; }
+.name-input { min-width: 160px; flex: 1; }
+.add-btn {
+  padding: 9px 20px; border: none; border-radius: 8px;
+  background: #1D9E75; color: #fff; cursor: pointer;
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  white-space: nowrap; align-self: flex-end;
+}
+.add-btn:hover { background: #178a65; }
+.add-btn:active { transform: scale(0.97); }
+.habits-list { display: flex; flex-direction: column; gap: 10px; }
+.habit-card {
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 12px;
+  padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.habit-card.done { border-color: #9FE1CB; background: #f0fbf7; }
+.count-ctrl { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
+.count-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid #ccc; background: #fff;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: #666;
+  transition: all 0.15s; user-select: none; flex-shrink: 0;
+}
+.count-circle:hover { border-color: #1D9E75; color: #1D9E75; background: #f0fbf7; }
+.habit-card.done .count-circle { background: #1D9E75; border-color: #1D9E75; color: #fff; }
+.undo-btn {
+  font-size: 10px; color: #aaa; cursor: pointer;
+  padding: 2px 7px; border-radius: 4px;
+  border: 1px solid #e8e8e8; background: #f5f5f3;
+  font-family: inherit;
+}
+.undo-btn:hover { background: #fdecea; color: #c0392b; border-color: #f5c6c6; }
+.spacer { height: 22px; }
+.habit-info { flex: 1; min-width: 0; }
+.habit-name { font-size: 15px; font-weight: 500; }
+.goal-bar-wrap { width: 100%; height: 4px; background: #eee; border-radius: 99px; margin: 6px 0 2px; overflow: hidden; }
+.goal-bar { height: 100%; border-radius: 99px; background: #1D9E75; transition: width 0.2s; }
+.habit-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
+.habit-cat { font-size: 11px; padding: 2px 9px; border-radius: 99px; font-weight: 600; }
+.habit-count-lbl { font-size: 12px; color: #888; }
+.habit-streak { font-size: 12px; color: #888; }
+.week-dots { display: flex; gap: 4px; align-items: center; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #ddd; display: inline-block; }
+.dot.filled { background: #1D9E75; }
+.dot.partial { background: #9FE1CB; }
+.dot.today-empty { background: transparent; border: 1.5px solid #ccc; }
+.del-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 15px; padding: 4px 6px; border-radius: 6px; align-self: flex-start; flex-shrink: 0; }
+.del-btn:hover { color: #c0392b; background: #fdecea; }
+.goal-card {
+  background: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);
+  border-radius: 14px; padding: 18px 20px; margin-bottom: 1.5rem; color: #fff;
+  position: relative;
+}
+.goal-card.empty { background: #fff; border: 2px dashed #ccc; cursor: pointer; text-align: center; padding: 22px; }
+.goal-card.empty .goal-empty-txt { color: #aaa; font-size: 14px; }
+.goal-card.empty .goal-empty-icon { font-size: 24px; margin-bottom: 6px; }
+.goal-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.goal-label { font-size: 11px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.goal-name { font-size: 18px; font-weight: 600; }
+.goal-edit-btn { background: rgba(255,255,255,0.2); border: none; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: inherit; }
+.goal-edit-btn:hover { background: rgba(255,255,255,0.3); }
+.goal-progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.goal-pct { font-size: 28px; font-weight: 700; }
+.goal-pct-label { font-size: 12px; opacity: 0.75; }
+.goal-bar-outer { flex: 1; height: 8px; background: rgba(255,255,255,0.25); border-radius: 99px; overflow: hidden; }
+.goal-bar-inner { height: 100%; border-radius: 99px; background: #fff; transition: width 0.4s; }
+.goal-manual-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.goal-manual-label { font-size: 12px; opacity: 0.8; }
+.goal-manual-inp { width: 80px; padding: 5px 8px; border-radius: 6px; border: none; font-size: 13px; font-family: inherit; outline: none; background: rgba(255,255,255,0.9); color: #111; }
+.goal-manual-of { font-size: 12px; opacity: 0.8; }
+.goal-manual-target { width: 80px; padding: 5px 8px; border-radius: 6px; border: none; font-size: 13px; font-family: inherit; outline: none; background: rgba(255,255,255,0.9); color: #111; }
+.goal-manual-unit { width: 70px; padding: 5px 8px; border-radius: 6px; border: none; font-size: 13px; font-family: inherit; outline: none; background: rgba(255,255,255,0.9); color: #111; }
+.goal-deadline { font-size: 12px; opacity: 0.75; margin-top: 8px; }
+.goal-form { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 16px; margin-bottom: 1.5rem; }
+.goal-form-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #111; }
+.goal-form-fields { display: flex; flex-direction: column; gap: 10px; }
+.goal-form-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.goal-form-btn { padding: 9px 20px; border: none; border-radius: 8px; background: #1D9E75; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; }
+.goal-form-btn:hover { background: #178a65; }
+.goal-cancel-btn { padding: 9px 16px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #666; cursor: pointer; font-size: 14px; font-family: inherit; }
+.section-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.install-banner { display:none; background:#1D9E75; color:#fff; font-size:13px; padding:10px 16px; text-align:center; position:sticky; top:0; z-index:10; }
+.install-banner span { opacity:0.85; }
+.install-banner b { font-weight:600; }
+.install-close { float:right; background:none; border:none; color:#fff; font-size:16px; cursor:pointer; line-height:1; padding:0 0 0 10px; }
+.ai-section { background:#fff; border:1px solid #e8e8e8; border-radius:12px; padding:16px; margin-bottom:1.5rem; }
+.ai-section-title { font-size:13px; font-weight:600; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px; }
+.ai-key-row { display:flex; gap:8px; align-items:flex-end; margin-bottom:10px; }
+.ai-key-inp { flex:1; font-family:monospace; font-size:12px; }
+.ai-key-save { padding:9px 14px; border:none; border-radius:8px; background:#1D9E75; color:#fff; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; }
+.ai-key-save:hover { background:#178a65; }
+.ai-key-set { font-size:12px; color:#1D9E75; font-weight:600; margin-bottom:10px; }
+.ai-btn-row { display:flex; gap:8px; flex-wrap:wrap; }
+.ai-btn { flex:1; min-width:120px; padding:10px 14px; border:1px solid #1D9E75; border-radius:8px; background:#fff; color:#1D9E75; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; }
+.ai-btn:hover { background:#f0fbf7; }
+.ai-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.ai-result { margin-top:14px; background:#f5f5f3; border-radius:8px; padding:12px 14px; font-size:14px; line-height:1.7; color:#333; display:none; }
+.ai-result.visible { display:block; }
+.ai-result-label { font-size:11px; font-weight:600; color:#1D9E75; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.ai-loading { color:#aaa; font-style:italic; font-size:13px; }
+.ai-suggest-list { list-style:none; padding:0; margin:6px 0 0; display:flex; flex-direction:column; gap:8px; }
+.ai-suggest-item { display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e8e8e8; border-radius:8px; padding:10px 12px; gap:8px; }
+.ai-suggest-name { font-size:14px; font-weight:500; flex:1; }
+.ai-suggest-add { padding:4px 12px; border:none; border-radius:6px; background:#1D9E75; color:#fff; cursor:pointer; font-size:12px; font-weight:600; font-family:inherit; white-space:nowrap; }
+.ai-suggest-add:hover { background:#178a65; }
+.ai-suggest-add:disabled { background:#ccc; cursor:not-allowed; }
+</style>
+</head>
+<body>
+<div class="install-banner" id="install-banner">
+  <span>📲 <b>Tap Share → Add to Home Screen</b> to install as an app</span>
+  <button class="install-close" id="install-close">✕</button>
+</div>
+<div class="container">
+  <div class="hb-header">
+    <span class="hb-title">HabitBuilder</span>
+    <span class="hb-date" id="hb-date"></span>
+  </div>
+
+  <div class="summary">
+    <div class="stat-card">
+      <div class="stat-label">Today</div>
+      <div class="stat-val" id="stat-today">—</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Best streak</div>
+      <div class="stat-val" id="stat-streak">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total habits</div>
+      <div class="stat-val" id="stat-total">0</div>
+    </div>
+  </div>
+
+  <div id="goal-section"></div>
+  <div id="goal-form-section" style="display:none;">
+    <div class="goal-form">
+      <div class="goal-form-title" id="goal-form-title">Set your goal</div>
+      <div class="goal-form-fields">
+        <div class="field-group">
+          <span class="field-hint">What is your goal?</span>
+          <input type="text" id="goal-name-inp" placeholder="e.g. Lose 10kg, Run a 5K" maxlength="60" style="width:100%;" />
+        </div>
+        <div class="goal-form-row">
+          <div class="field-group">
+            <span class="field-hint">Current value</span>
+            <input type="number" id="goal-current-inp" placeholder="e.g. 80" min="0" />
+          </div>
+          <div class="field-group">
+            <span class="field-hint">Target value</span>
+            <input type="number" id="goal-target-inp" placeholder="e.g. 70" min="0" />
+          </div>
+          <div class="field-group">
+            <span class="field-hint">Unit</span>
+            <input type="text" id="goal-unit-inp" placeholder="kg, km, mins" maxlength="10" style="width:80px;" />
+          </div>
+          <div class="field-group">
+            <span class="field-hint">Deadline</span>
+            <input type="date" id="goal-deadline-inp" style="width:140px;" />
+          </div>
+        </div>
+        <div class="goal-form-row">
+          <button class="goal-form-btn" id="goal-save-btn">Save goal</button>
+          <button class="goal-cancel-btn" id="goal-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title" id="habits-section-title" style="display:none;">Habits towards this goal</div>
+  <div class="add-section">
+    <div class="add-fields">
+      <div class="field-group" style="flex:1;min-width:150px;">
+        <span class="field-hint">Habit name</span>
+        <input class="name-input" type="text" id="habit-input" placeholder="e.g. Drink water" maxlength="40" />
+      </div>
+      <div class="field-group">
+        <span class="field-hint">Category</span>
+        <select id="cat-select">
+          <option value="health">Health</option>
+          <option value="mind">Mind</option>
+          <option value="work">Work</option>
+          <option value="social">Social</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <span class="field-hint">Type</span>
+        <select id="type-select">
+          <option value="yesno">Yes / No</option>
+          <option value="count">Count</option>
+          <option value="duration">Duration (hrs)</option>
+          <option value="mins">Duration (mins)</option>
+        </select>
+      </div>
+      <div class="field-group" id="goal-field">
+        <span class="field-hint">Daily goal</span>
+        <input type="number" id="goal-input" min="1" max="999999" value="1" />
+      </div>
+      <button class="add-btn" id="add-btn">+ Add</button>
+    </div>
+  </div>
+
+  <div class="habits-list" id="habits-list"></div>
+
+  <div class="ai-section" style="margin-top:1.5rem;">
+    <div class="ai-section-title">✨ AI Assistant</div>
+    <div id="ai-key-area">
+      <div class="ai-key-row">
+        <input class="ai-key-inp" type="password" id="ai-key-inp" placeholder="Paste your Groq API key (gsk_...)" />
+        <button class="ai-key-save" id="ai-key-save-btn">Save</button>
+      </div>
+      <div style="font-size:11px;color:#aaa;">Get your free key at <a href="https://console.groq.com/keys" target="_blank" style="color:#1D9E75;">console.groq.com/keys</a> — no card needed!</div>
+    </div>
+    <div id="ai-key-set-area" style="display:none;">
+      <div class="ai-key-set">✓ API key saved &nbsp;<button id="ai-key-change-btn" style="background:none;border:none;color:#aaa;font-size:11px;cursor:pointer;font-family:inherit;">change</button></div>
+      <div class="ai-btn-row">
+        <button class="ai-btn" id="ai-suggest-btn">🎯 Suggest habits</button>
+        <button class="ai-btn" id="ai-motivate-btn">💪 Motivate me</button>
+      </div>
+    </div>
+    <div class="ai-result" id="ai-result">
+      <div class="ai-result-label" id="ai-result-label"></div>
+      <div id="ai-result-body"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var habits = [];
+
+  var CAT_COLORS = {
+    health: { bg: '#E1F5EE', color: '#0F6E56' },
+    mind:   { bg: '#EEEDFE', color: '#3C3489' },
+    work:   { bg: '#E6F1FB', color: '#0C447C' },
+    social: { bg: '#FAEEDA', color: '#633806' },
+    other:  { bg: '#F1EFE8', color: '#444441' }
+  };
+
+  var STORAGE_KEY = 'habitbuilder_habits';
+  var GOAL_KEY = 'habitbuilder_goal';
+  var goal = null;
+
+  function saveGoal() {
+    try { localStorage.setItem(GOAL_KEY, JSON.stringify(goal)); } catch(e) {}
+  }
+
+  function loadGoal() {
+    try {
+      var raw = localStorage.getItem(GOAL_KEY);
+      if (raw) goal = JSON.parse(raw);
+    } catch(e) { goal = null; }
+  }
+
+  function saveHabits() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(habits)); } catch(e) {}
+  }
+
+  function loadHabits() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) habits = JSON.parse(raw);
+    } catch(e) { habits = []; }
+  }
+
+  function todayStr() {
+    var d = new Date();
+    var mm = d.getMonth() + 1;
+    var dd = d.getDate();
+    return d.getFullYear() + '-' + (mm < 10 ? '0' + mm : mm) + '-' + (dd < 10 ? '0' + dd : dd);
+  }
+
+  function getLast7Days() {
+    var days = [];
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date();
+      d.setDate(d.getDate() - i);
+      var mm = d.getMonth() + 1;
+      var dd = d.getDate();
+      days.push(d.getFullYear() + '-' + (mm < 10 ? '0' + mm : mm) + '-' + (dd < 10 ? '0' + dd : dd));
+    }
+    return days;
+  }
+
+  function getCount(habit, date) {
+    return habit.counts[date] || 0;
+  }
+
+  function getStreak(habit) {
+    var streak = 0;
+    var d = new Date();
+    for (var i = 0; i < 365; i++) {
+      var mm = d.getMonth() + 1;
+      var dd2 = d.getDate();
+      var s = d.getFullYear() + '-' + (mm < 10 ? '0' + mm : mm) + '-' + (dd2 < 10 ? '0' + dd2 : dd2);
+      if (getCount(habit, s) >= habit.goal) {
+        streak++;
+        d.setDate(d.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  var STREAK_KEY = 'habitbuilder_beststreak';
+  var STREAK_DATE_KEY = 'habitbuilder_beststreak_date';
+  var bestStreak = 0;
+  var bestStreakDate = '';
+
+  function loadBestStreak() {
+    try {
+      bestStreak = parseInt(localStorage.getItem(STREAK_KEY), 10) || 0;
+      bestStreakDate = localStorage.getItem(STREAK_DATE_KEY) || '';
+    } catch(e) {}
+  }
+
+  function saveBestStreak() {
+    try {
+      localStorage.setItem(STREAK_KEY, bestStreak);
+      localStorage.setItem(STREAK_DATE_KEY, bestStreakDate);
+    } catch(e) {}
+  }
+
+  function checkAndUpdateBestStreak() {
+    var today = todayStr();
+    if (!habits.length) return;
+    var allDone = habits.every(function(h) { return getCount(h, today) >= h.goal; });
+    if (!allDone) return;
+    if (bestStreakDate === today) return;
+    var currentStreak = getCurrentOverallStreak();
+    if (currentStreak > bestStreak) {
+      bestStreak = currentStreak;
+      bestStreakDate = today;
+      saveBestStreak();
+    }
+  }
+
+  function getCurrentOverallStreak() {
+    var streak = 0;
+    var d = new Date();
+    for (var i = 0; i < 365; i++) {
+      var mm = d.getMonth() + 1;
+      var dd2 = d.getDate();
+      var s = d.getFullYear() + '-' + (mm < 10 ? '0' + mm : mm) + '-' + (dd2 < 10 ? '0' + dd2 : dd2);
+      var allDoneOnDay = habits.length > 0 && habits.every(function(h) { return getCount(h, s) >= h.goal; });
+      if (allDoneOnDay) { streak++; d.setDate(d.getDate() - 1); }
+      else break;
+    }
+    return streak;
+  }
+
+  function daysLeft(deadline) {
+    if (!deadline) return null;
+    var diff = Math.ceil((new Date(deadline) - new Date()) / 86400000);
+    return diff;
+  }
+
+  function renderGoal() {
+    var sec = document.getElementById('goal-section');
+    var habitsTitle = document.getElementById('habits-section-title');
+    habitsTitle.style.display = habits.length || goal ? 'block' : 'none';
+    if (!goal) {
+      sec.innerHTML = '<div class="goal-card empty" id="goal-empty-btn"><div class="goal-empty-icon">🎯</div><div class="goal-empty-txt">Tap to set your goal</div></div>';
+      document.getElementById('goal-empty-btn').addEventListener('click', showGoalForm);
+      return;
+    }
+    var today = todayStr();
+    var total = habits.length;
+    var done = habits.filter(function(h) { return getCount(h, today) >= h.goal; }).length;
+    var habitPct = total > 0 ? Math.round(done / total * 100) : 0;
+    var manualPct = 0;
+    if (goal.target && goal.current !== undefined && goal.target !== goal.startVal) {
+      var range = Math.abs(goal.target - goal.startVal);
+      var progress = Math.abs(goal.current - goal.startVal);
+      manualPct = Math.min(100, Math.round(progress / range * 100));
+    }
+    var combinedPct = total > 0 ? Math.round((habitPct + manualPct) / 2) : manualPct;
+    var dl = daysLeft(goal.deadline);
+    var deadlineTxt = dl !== null ? (dl > 0 ? '📅 ' + dl + ' days left' : dl === 0 ? '📅 Due today!' : '📅 Deadline passed') : '';
+    sec.innerHTML = '<div class="goal-card">'
+      + '<div class="goal-top"><div><div class="goal-label">My Goal</div><div class="goal-name">' + escHtml(goal.name) + '</div></div>'
+      + '<button class="goal-edit-btn" id="goal-edit-btn">Edit</button></div>'
+      + '<div class="goal-progress-row"><div><div class="goal-pct">' + combinedPct + '%</div><div class="goal-pct-label">overall progress</div></div>'
+      + '<div class="goal-bar-outer"><div class="goal-bar-inner" style="width:' + combinedPct + '%"></div></div></div>'
+      + (goal.target ? '<div class="goal-manual-row"><span class="goal-manual-label">Current:</span>'
+        + '<input class="goal-manual-inp" type="number" id="goal-current-live" value="' + (goal.current || 0) + '" />'
+        + '<span class="goal-manual-of">/ ' + goal.target + ' ' + escHtml(goal.unit || '') + '</span></div>' : '')
+      + (deadlineTxt ? '<div class="goal-deadline">' + deadlineTxt + '</div>' : '')
+      + '</div>';
+    document.getElementById('goal-edit-btn').addEventListener('click', showGoalForm);
+    var liveInp = document.getElementById('goal-current-live');
+    if (liveInp) {
+      liveInp.addEventListener('change', function() {
+        goal.current = parseFloat(this.value) || 0;
+        saveGoal();
+        renderGoal();
+      });
+    }
+  }
+
+  function showGoalForm() {
+    document.getElementById('goal-form-section').style.display = 'block';
+    document.getElementById('goal-section').style.display = 'none';
+    if (goal) {
+      document.getElementById('goal-form-title').textContent = 'Edit your goal';
+      document.getElementById('goal-name-inp').value = goal.name || '';
+      document.getElementById('goal-current-inp').value = goal.startVal || '';
+      document.getElementById('goal-target-inp').value = goal.target || '';
+      document.getElementById('goal-unit-inp').value = goal.unit || '';
+      document.getElementById('goal-deadline-inp').value = goal.deadline || '';
+    } else {
+      document.getElementById('goal-form-title').textContent = 'Set your goal';
+    }
+  }
+
+  function hideGoalForm() {
+    document.getElementById('goal-form-section').style.display = 'none';
+    document.getElementById('goal-section').style.display = 'block';
+  }
+
+  document.getElementById('goal-save-btn').addEventListener('click', function() {
+    var name = document.getElementById('goal-name-inp').value.trim();
+    if (!name) { document.getElementById('goal-name-inp').style.borderColor = '#e74c3c'; return; }
+    var startVal = parseFloat(document.getElementById('goal-current-inp').value) || 0;
+    var target = parseFloat(document.getElementById('goal-target-inp').value) || 0;
+    var unit = document.getElementById('goal-unit-inp').value.trim();
+    var deadline = document.getElementById('goal-deadline-inp').value;
+    goal = { name: name, startVal: startVal, current: goal ? goal.current : startVal, target: target, unit: unit, deadline: deadline };
+    saveGoal();
+    hideGoalForm();
+    render();
+  });
+
+  function autoDetectType(name) {
+    if (isStepsHabit(name)) return 'count';
+    if (isProteinHabit(name)) return 'count';
+    if (isSleepHabit(name)) return 'duration';
+    if (isWorkHabit(name)) return 'duration';
+    if (isReadingHabit(name)) return 'mins';
+    if (/vitamin|pill|medicine|medication|supplement|shower|floss|journal|pray|gratitude|cold/i.test(name)) return 'yesno';
+    return 'yesno';
+  }
+
+  function isReadingHabit(name) {
+    return /read|reading|book|books/i.test(name);
+  }
+
+  function addHabit() {
+    var input = document.getElementById('habit-input');
+    var name = input.value.trim();
+    if (!name) {
+      input.focus();
+      input.style.borderColor = '#e74c3c';
+      setTimeout(function () { input.style.borderColor = ''; }, 1000);
+      return;
+    }
+    var cat = document.getElementById('cat-select').value;
+    var type = document.getElementById('type-select').value;
+    var habitGoal, step, unit;
+
+    if (type === 'yesno') {
+      habitGoal = 1; step = 1; unit = 'yesno';
+    } else if (type === 'duration') {
+      habitGoal = parseInt(document.getElementById('goal-input').value, 10) || 1;
+      if (isSleepHabit(name) && habitGoal === 1) habitGoal = 8;
+      if (isWorkHabit(name) && habitGoal === 1) habitGoal = 2;
+      step = 0.5; unit = 'hrs';
+    } else if (type === 'mins') {
+      habitGoal = parseInt(document.getElementById('goal-input').value, 10) || 15;
+      if (isReadingHabit(name) && habitGoal === 1) habitGoal = 15;
+      step = 5; unit = 'mins';
+    } else {
+      habitGoal = parseInt(document.getElementById('goal-input').value, 10) || 1;
+      var isSt = isStepsHabit(name), isPr = isProteinHabit(name);
+      if (isSt && habitGoal === 1) habitGoal = 10000;
+      if (isPr && habitGoal === 1) habitGoal = 50;
+      step = isSt ? 1000 : isPr ? 10 : 1;
+      unit = isSt ? 'steps' : isPr ? 'g' : 'count';
+    }
+
+    habits.push({ id: Date.now(), name: name, cat: cat, type: type, goal: habitGoal, step: step, unit: unit, counts: {} });
+    saveHabits();
+    input.value = '';
+    document.getElementById('goal-input').value = 1;
+    input.focus();
+    render();
+  }
+
+  function increment(id) {
+    var today = todayStr();
+    for (var i = 0; i < habits.length; i++) {
+      if (habits[i].id === id) {
+        if (habits[i].type === 'yesno') {
+          habits[i].counts[today] = habits[i].counts[today] ? 0 : 1;
+        } else {
+          var s = habits[i].step || 1;
+          var cur = habits[i].counts[today] || 0;
+          var next = Math.round((cur + s) * 10) / 10;
+          if (habits[i].type === 'duration' || habits[i].type === 'mins') next = Math.min(next, habits[i].goal);
+          habits[i].counts[today] = next;
+        }
+        break;
+      }
+    }
+    saveHabits();
+    var allDone = habits.length > 0 && habits.every(function(h) { return getCount(h, today) >= h.goal; });
+    if (allDone) checkAndUpdateBestStreak();
+    render();
+  }
+
+  function decrement(id) {
+    var today = todayStr();
+    for (var i = 0; i < habits.length; i++) {
+      if (habits[i].id === id) {
+        var s = habits[i].step || 1;
+        var cur = habits[i].counts[today] || 0;
+        habits[i].counts[today] = Math.max(0, Math.round((cur - s) * 10) / 10);
+        break;
+      }
+    }
+    saveHabits();
+    render();
+  }
+
+  function deleteHabit(id) {
+    habits = habits.filter(function (h) { return h.id !== id; });
+    saveHabits();
+    render();
+  }
+
+  function isStepsHabit(name) {
+    return /step|steps|walk|walking|stride|strides/i.test(name);
+  }
+
+  function isProteinHabit(name) {
+    return /protein|proteins|whey|shake|meat|chicken|egg|eggs/i.test(name);
+  }
+
+  function isSleepHabit(name) {
+    return /sleep|sleeping|rest|nap/i.test(name);
+  }
+
+  function isWorkHabit(name) {
+    return /work|study|read|reading|meditat|exercise|workout|gym|yoga|coding|code/i.test(name);
+  }
+
+  function getHabitUnit(name) {
+    if (isStepsHabit(name)) return 'steps';
+    if (isProteinHabit(name)) return 'g';
+    return 'hrs';
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function render() {
+    var today = todayStr();
+    var days = getLast7Days();
+    var total = habits.length;
+    var done = habits.filter(function (h) { return getCount(h, today) >= h.goal; }).length;
+
+    document.getElementById('stat-today').textContent = total ? (done + '/' + total) : '—';
+    document.getElementById('prog-bar').style.width = total ? Math.round(done / total * 100) + '%' : '0%';
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-streak').textContent = bestStreak;
+    renderGoal();
+
+    var list = document.getElementById('habits-list');
+    if (!total) {
+      list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div>No habits yet — add your first one above.</div></div>';
+      return;
+    }
+
+    var html = '';
+    function fmt(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000 % 1 === 0 ? n / 1000 : (n / 1000).toFixed(1)) + 'k';
+      return n;
+    }
+    for (var i = 0; i < habits.length; i++) {
+      var h = habits[i];
+      var count = getCount(h, today);
+      var isDone = count >= h.goal;
+      var streak = getStreak(h);
+      var c = CAT_COLORS[h.cat] || CAT_COLORS.other;
+      var pct = Math.min(100, Math.round(count / h.goal * 100));
+
+      var dotsHtml = '';
+      for (var j = 0; j < days.length; j++) {
+        var dc = getCount(h, days[j]);
+        var cls = '';
+        if (j === 6 && count === 0) cls = 'today-empty';
+        else if (dc >= h.goal) cls = 'filled';
+        else if (dc > 0) cls = 'partial';
+        dotsHtml += '<span class="dot ' + cls + '"></span>';
+      }
+
+      var stepSize = h.step || 1;
+      var unit = h.unit || 'hrs';
+      var htype = h.type || (unit === 'yesno' ? 'yesno' : 'duration');
+      var countLabel, countDisplay, goalDisplay;
+
+      if (htype === 'yesno') {
+        countLabel = isDone ? '&#10003;' : '✕';
+        countDisplay = isDone ? 'Done ✓' : 'Not done';
+        goalDisplay = '';
+      } else if (unit === 'steps') {
+        countLabel = isDone ? '&#10003;' : '+' + (stepSize / 1000) + 'k';
+        countDisplay = fmt(count) + ' steps';
+        goalDisplay = fmt(h.goal) + ' steps';
+      } else if (unit === 'g') {
+        countLabel = isDone ? '&#10003;' : '+' + stepSize + 'g';
+        countDisplay = count + 'g';
+        goalDisplay = h.goal + 'g';
+      } else if (unit === 'hrs') {
+        countLabel = isDone ? '&#10003;' : '+' + stepSize + 'h';
+        countDisplay = count + ' hrs';
+        goalDisplay = h.goal + ' hrs';
+      } else if (unit === 'mins') {
+        countLabel = isDone ? '&#10003;' : '+' + stepSize + 'm';
+        countDisplay = count + ' mins';
+        goalDisplay = h.goal + ' mins';
+      } else {
+        countLabel = isDone ? '&#10003;' : '+' + (stepSize > 1 ? stepSize : '');
+        countDisplay = count + '';
+        goalDisplay = h.goal + '';
+      }
+
+      html += '<div class="habit-card' + (isDone ? ' done' : '') + '" data-id="' + h.id + '">';
+      html += '<div class="count-ctrl">';
+      html += '<div class="count-circle" data-action="inc" data-id="' + h.id + '">' + countLabel + '</div>';
+      if (count > 0 && htype !== 'yesno') {
+        html += '<button class="undo-btn" data-action="dec" data-id="' + h.id + '">undo</button>';
+      } else if (htype !== 'yesno') {
+        html += '<span class="spacer"></span>';
+      }
+      html += '</div>';
+      html += '<div class="habit-info">';
+      html += '<div class="habit-name">' + escHtml(h.name) + '</div>';
+      if (htype !== 'yesno') {
+        html += '<div class="goal-bar-wrap"><div class="goal-bar" style="width:' + pct + '%"></div></div>';
+      }
+      html += '<div class="habit-meta">';
+      html += '<span class="habit-cat" style="background:' + c.bg + ';color:' + c.color + '">' + h.cat + '</span>';
+      if (htype === 'yesno') {
+        html += '<span class="habit-count-lbl" style="color:' + (isDone ? '#1D9E75' : '#aaa') + '">' + countDisplay + '</span>';
+      } else {
+        html += '<span class="habit-count-lbl">' + countDisplay + ' / ' + goalDisplay + '</span>';
+      }
+      html += '<span class="week-dots">' + dotsHtml + '</span>';
+      if (streak > 0) {
+        html += '<span class="habit-streak">&#128293; ' + streak + 'd</span>';
+      }
+      html += '</div></div>';
+      html += '<button class="del-btn" data-action="del" data-id="' + h.id + '">&#x2715;</button>';
+      html += '</div>';
+    }
+    list.innerHTML = html;
+  }
+
+  document.getElementById('habits-list').addEventListener('click', function (e) {
+    var el = e.target.closest('[data-action]');
+    if (!el) return;
+    var id = parseInt(el.getAttribute('data-id'), 10);
+    var action = el.getAttribute('data-action');
+    if (action === 'inc') increment(id);
+    else if (action === 'dec') decrement(id);
+    else if (action === 'del') deleteHabit(id);
+  });
+
+  document.getElementById('add-btn').addEventListener('click', addHabit);
+
+  document.getElementById('habit-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') addHabit();
+  });
+
+  document.getElementById('habit-input').addEventListener('input', function() {
+    var name = this.value.trim();
+    var type = autoDetectType(name);
+    document.getElementById('type-select').value = type;
+    document.getElementById('goal-field').style.display = type === 'yesno' ? 'none' : 'flex';
+    if (type === 'mins') document.getElementById('goal-input').value = 15;
+    else if (type === 'duration') document.getElementById('goal-input').value = isSleepHabit(name) ? 8 : isWorkHabit(name) ? 2 : 1;
+  });
+
+  document.getElementById('type-select').addEventListener('change', function() {
+    document.getElementById('goal-field').style.display = this.value === 'yesno' ? 'none' : 'flex';
+  });
+
+  function scheduleMidnightCheck() {
+    var now = new Date();
+    var midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1);
+    var msUntilMidnight = midnight - now;
+    setTimeout(function() {
+      checkAndUpdateBestStreak();
+      render();
+      scheduleMidnightCheck();
+    }, msUntilMidnight);
+  }
+
+  var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var now = new Date();
+  document.getElementById('hb-date').textContent = dayNames[now.getDay()] + ', ' + monthNames[now.getMonth()] + ' ' + now.getDate();
+
+  var isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+  var bannerDismissed = false;
+  try { bannerDismissed = localStorage.getItem('hb_banner_dismissed') === '1'; } catch(e) {}
+  if (isMobile && !bannerDismissed) {
+    document.getElementById('install-banner').style.display = 'block';
+  }
+  document.getElementById('install-close').addEventListener('click', function() {
+    document.getElementById('install-banner').style.display = 'none';
+    try { localStorage.setItem('hb_banner_dismissed', '1'); } catch(e) {}
+  });
+
+  var AI_KEY_STORAGE = 'hb_ai_key';
+  var aiKey = '';
+
+  function loadAiKey() {
+    try { aiKey = localStorage.getItem(AI_KEY_STORAGE) || ''; } catch(e) {}
+    updateAiKeyUI();
+  }
+
+  function updateAiKeyUI() {
+    if (aiKey) {
+      document.getElementById('ai-key-area').style.display = 'none';
+      document.getElementById('ai-key-set-area').style.display = 'block';
+    } else {
+      document.getElementById('ai-key-area').style.display = 'block';
+      document.getElementById('ai-key-set-area').style.display = 'none';
+    }
+  }
+
+  document.getElementById('ai-key-save-btn').addEventListener('click', function() {
+    var val = document.getElementById('ai-key-inp').value.trim();
+    if (!val) return;
+    aiKey = val;
+    try { localStorage.setItem(AI_KEY_STORAGE, aiKey); } catch(e) {}
+    document.getElementById('ai-key-inp').value = '';
+    updateAiKeyUI();
+  });
+
+  document.getElementById('ai-key-change-btn').addEventListener('click', function() {
+    aiKey = '';
+    try { localStorage.removeItem(AI_KEY_STORAGE); } catch(e) {}
+    document.getElementById('ai-result').classList.remove('visible');
+    updateAiKeyUI();
+  });
+
+  function getHabitSummary() {
+    var today = todayStr();
+    return habits.map(function(h) {
+      return h.name + ' (' + getCount(h, today) + '/' + h.goal + ' ' + (h.unit || 'times') + ')';
+    }).join(', ');
+  }
+
+  function setAiLoading(label) {
+    var res = document.getElementById('ai-result');
+    res.classList.add('visible');
+    document.getElementById('ai-result-label').textContent = label;
+    document.getElementById('ai-result-body').innerHTML = '<span class="ai-loading">Thinking...</span>';
+    document.getElementById('ai-suggest-btn').disabled = true;
+    document.getElementById('ai-motivate-btn').disabled = true;
+  }
+
+  function setAiDone() {
+    document.getElementById('ai-suggest-btn').disabled = false;
+    document.getElementById('ai-motivate-btn').disabled = false;
+  }
+
+  async function callGemini(prompt) {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + aiKey.trim()
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1000,
+        temperature: 0.7
+      })
+    });
+    if (!res.ok) { var err = await res.json(); throw new Error(err.error ? err.error.message : 'API error ' + res.status); }
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.choices[0].message.content;
+  }
+
+  document.getElementById('ai-suggest-btn').addEventListener('click', async function() {
+    if (!goal) { alert('Please set your goal first!'); return; }
+    setAiLoading('Suggested habits');
+    try {
+      var existing = habits.map(function(h) { return h.name; }).join(', ') || 'none yet';
+      var prompt = 'I want to achieve this goal: "' + goal.name + '".'
+        + (goal.target ? ' Target: ' + goal.target + ' ' + (goal.unit || '') + ', currently at ' + (goal.current || goal.startVal) + '.' : '')
+        + ' I already have these habits: ' + existing + '.'
+        + ' Suggest 4 specific daily habits that will help me reach this goal. I have not added yet.'
+        + ' Reply ONLY as a JSON array of objects with keys "name" and "category" (health/mind/work/social/other). No explanation, no markdown, just the JSON array.';
+      var text = await callGemini(prompt);
+      var clean = text.replace(/```json|```/g, '').trim();
+      var suggestions = JSON.parse(clean);
+      var html = '<ul class="ai-suggest-list">';
+      suggestions.forEach(function(s, idx) {
+        html += '<li class="ai-suggest-item">'
+          + '<span class="ai-suggest-name">' + escHtml(s.name) + '</span>'
+          + '<button class="ai-suggest-add" data-name="' + escHtml(s.name) + '" data-cat="' + escHtml(s.category || 'other') + '">+ Add</button>'
+          + '</li>';
+      });
+      html += '</ul>';
+      document.getElementById('ai-result-body').innerHTML = html;
+      document.getElementById('ai-result').querySelectorAll('.ai-suggest-add').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var name = this.getAttribute('data-name');
+          var cat = this.getAttribute('data-cat');
+          var isSteps = isStepsHabit(name);
+          var isProtein = isProteinHabit(name);
+          var isSleep = isSleepHabit(name);
+          var isWork = isWorkHabit(name);
+          var hGoal = isSteps ? 10000 : isProtein ? 50 : isSleep ? 8 : isWork ? 2 : 1;
+          var step = isSteps ? 1000 : isProtein ? 10 : 1;
+          var unit = getHabitUnit(name);
+          habits.push({ id: Date.now(), name: name, cat: cat, goal: hGoal, step: step, unit: unit, counts: {} });
+          saveHabits();
+          this.textContent = '✓ Added';
+          this.disabled = true;
+          render();
+        });
+      });
+    } catch(e) {
+      document.getElementById('ai-result-body').innerHTML = '<span style="color:#c0392b;font-size:13px;">❌ ' + escHtml(e.message) + '</span>';
+    }
+    setAiDone();
+  });
+
+  document.getElementById('ai-motivate-btn').addEventListener('click', async function() {
+    setAiLoading('Motivation');
+    try {
+      var today = todayStr();
+      var total = habits.length;
+      var done = habits.filter(function(h) { return getCount(h, today) >= h.goal; }).length;
+      var pct = total ? Math.round(done / total * 100) : 0;
+      var prompt = 'I am working towards this goal: "' + (goal ? goal.name : 'building better habits') + '".'
+        + ' Today I completed ' + done + ' out of ' + total + ' habits (' + pct + '%).'
+        + ' My current streak is ' + bestStreak + ' days.'
+        + ' Give me a short, personal, energetic motivational message (2-3 sentences max). Be specific to my goal and progress. No generic advice.';
+      var text = await callGemini(prompt);
+      document.getElementById('ai-result-body').innerHTML = '<p>' + escHtml(text) + '</p>';
+    } catch(e) {
+      document.getElementById('ai-result-body').innerHTML = '<span style="color:#c0392b;font-size:13px;">❌ ' + escHtml(e.message) + '</span>';
+    }
+    setAiDone();
+  });
+
+  loadAiKey();
+
+  loadHabits();
+  loadGoal();
+  loadBestStreak();
+  scheduleMidnightCheck();
+  render();
+})();
+</script>
+</body>
+</html>
